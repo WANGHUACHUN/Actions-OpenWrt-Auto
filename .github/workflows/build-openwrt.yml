@@ -21,8 +21,8 @@ on:
   watch:
     types: started
     
-  schedule:
-    - cron: 00 08 */3 * *
+#  schedule:
+#    - cron: 00 08 */3 * *
     
   
 env:
