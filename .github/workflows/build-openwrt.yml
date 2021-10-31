@@ -22,7 +22,7 @@ on:
 #    types: started
     
   schedule:
-    - cron: 00 08 */3 * *
+     - cron: 00 22 * * *
     
   
 env:
@@ -135,7 +135,7 @@ jobs:
       id: package
       run: |
         cd openwrt
-        echo -e 'CONFIG_DEVEL=y\nCONFIG_CCACHE=y' >> .config #Cache.Speedup
+        #echo -e 'CONFIG_DEVEL=y\nCONFIG_CCACHE=y' >> .config #Cache.Speedup
         make defconfig
         make download -j8
         find dl -size -1024c -exec ls -l {} \;
@@ -207,7 +207,17 @@ jobs:
       id: tag
       if: env.UPLOAD_RELEASE == 'true' && !cancelled()
       run: |
-        echo "::set-output name=release_tag::$(cat /home/runner/work/Actions-OpenWrt-Auto/Actions-OpenWrt-Auto/openwrt/wget/op_version1)"
+        echo "::set-output name=release_tag::$(cat openwrt/wget/op_version1)"
+        echo "## Firmware Update Log" >> release.txt
+        git -C openwrt log --pretty=format:"%s(#By %an)"  --graph --since=3.hour >> release.txt | cat release.txt >> openwrt/wget/release
+        git -C openwrt/feeds/packages log --pretty=format:"%s(#By %an)"  --graph --since=3.hour >> release.txt | cat release.txt >> openwrt/wget/release
+        git -C openwrt/feeds/luci log --pretty=format:"%s(#By %an)"  --graph --since=3.hour >> release.txt | cat release.txt >> openwrt/wget/release
+        git -C openwrt/feeds/routing log --pretty=format:"%s(#By %an)"  --graph --since=3.hour >> release.txt | cat release.txt >> openwrt/wget/release
+        git -C openwrt/feeds/telephony log --pretty=format:"%s(#By %an)"  --graph --since=3.hour >> release.txt | cat release.txt >> openwrt/wget/release
+        git -C openwrt/feeds/helloworld log --pretty=format:"%s(#By %an)"  --graph --since=3.hour >> release.txt | cat release.txt >> openwrt/wget/release
+        git -C openwrt/feeds/passwall log --pretty=format:"%s(#By %an)"  --graph --since=3.hour >> release.txt | cat release.txt >> openwrt/wget/release
+        git -C openwrt/package/luci-app-openclash log --pretty=format:"%s(#By %an)"  --graph --since=3.hour >> release.txt | cat release.txt >> openwrt/wget/release
+        if [[ ! -s  openwrt/wget/release ]];then echo -e "\n* The source code is not updated." >> release.txt;fi
         touch release.txt
         [ $UPLOAD_COWTRANSFER = true ] && echo "🔗 [Cowtransfer](${{ steps.cowtransfer.outputs.url }})" >> release.txt
         [ $UPLOAD_WETRANSFER = true ] && echo "🔗 [WeTransfer](${{ steps.wetransfer.outputs.url }})" >> release.txt
