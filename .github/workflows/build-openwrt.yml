@@ -18,7 +18,13 @@ on:
         description: 'SSH connection to Actions'
         required: false
         default: 'false'
-
+  watch:
+    types: started
+    
+  schedule:
+    - cron: 00 08 */3 * *
+    
+  
 env:
   REPO_URL: https://github.com/coolsnowwolf/lede
   REPO_BRANCH: master
@@ -30,7 +36,7 @@ env:
   UPLOAD_FIRMWARE: true
   UPLOAD_COWTRANSFER: false
   UPLOAD_WETRANSFER: false
-  UPLOAD_RELEASE: false
+  UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
 
 jobs:
@@ -60,13 +66,49 @@ jobs:
         df -hT $PWD
         git clone $REPO_URL -b $REPO_BRANCH openwrt
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
-
+   
+    - name: Cache
+      uses: klever1988/cachewrtbuild@main
+      with:
+       ccache: 'true'
+       prefix: ${{ github.workspace }}/openwrt
+    
+    - name: luci-app-openclash install
+      run: |
+        cd openwrt
+        mkdir package/luci-app-openclash
+        cd package/luci-app-openclash
+        git init
+        git remote add -f origin https://github.com/vernesong/OpenClash.git
+        git config core.sparsecheckout true
+        echo "luci-app-openclash" >> .git/info/sparse-checkout
+        git pull origin master
+        git branch --set-upstream-to=origin/master master
+    
+    - name: luci-theme-argon install
+      run: |
+       cd openwrt
+       cd package/lean  
+       rm -rf luci-theme-argon  
+       git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
+    
+    
     - name: Load custom feeds
       run: |
         [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
         chmod +x $DIY_P1_SH
         cd openwrt
         $GITHUB_WORKSPACE/$DIY_P1_SH
+        
+  #  - name: lenyu_files
+  #    run: |
+  #      cd openwrt 
+  #      bash lenyu_files.sh
+   
+    - name: lenyu
+      run: |
+        cd openwrt 
+        bash  lenyu.sh
 
     - name: Update feeds
       run: cd openwrt && ./scripts/feeds update -a
@@ -93,6 +135,7 @@ jobs:
       id: package
       run: |
         cd openwrt
+        echo -e 'CONFIG_DEVEL=y\nCONFIG_CCACHE=y' >> .config #Cache.Speedup
         make defconfig
         make download -j8
         find dl -size -1024c -exec ls -l {} \;
@@ -119,6 +162,12 @@ jobs:
       with:
         name: OpenWrt_bin${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
         path: openwrt/bin
+   
+    - name: delete files
+      run: |
+        cd openwrt 
+        bash  rename.sh
+    
 
     - name: Organize files
       id: organize
@@ -158,7 +207,7 @@ jobs:
       id: tag
       if: env.UPLOAD_RELEASE == 'true' && !cancelled()
       run: |
-        echo "::set-output name=release_tag::$(date +"%Y.%m.%d-%H%M")"
+        echo "::set-output name=release_tag::$(cat /home/runner/work/Actions-OpenWrt-x86/Actions-OpenWrt-x86/openwrt/wget/op_version1)"
         touch release.txt
         [ $UPLOAD_COWTRANSFER = true ] && echo "🔗 [Cowtransfer](${{ steps.cowtransfer.outputs.url }})" >> release.txt
         [ $UPLOAD_WETRANSFER = true ] && echo "🔗 [WeTransfer](${{ steps.wetransfer.outputs.url }})" >> release.txt
@@ -178,13 +227,13 @@ jobs:
       uses: GitRML/delete-workflow-runs@main
       with:
         retain_days: 1
-        keep_minimum_runs: 3
+        keep_minimum_runs: 5
 
     - name: Remove old Releases
       uses: dev-drprasad/delete-older-releases@v0.1.0
       if: env.UPLOAD_RELEASE == 'true' && !cancelled()
       with:
-        keep_latest: 3
+        keep_latest: 20
         delete_tags: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
