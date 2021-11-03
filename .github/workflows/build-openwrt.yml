@@ -222,7 +222,7 @@ jobs:
         git -C openwrt/feeds/helloworld log --pretty=format:"%s(#By %an)"  --graph --since=3.hour >> release.txt
         git -C openwrt/feeds/passwall log --pretty=format:"%s(#By %an)"  --graph --since=3.hour >> release.txt 
         git -C openwrt/package/luci-app-openclash log --pretty=format:"%s(#By %an)"  --graph --since=3.hour >> release.txt
-	    git -C openwrt/package/lean/luci-app-adguardhome log --pretty=format:"%s(#By %an)"  --graph --since=3.hour >> release.txt
+	    git -C openwrt/package/luci-app-adguardhome log --pretty=format:"%s(#By %an)"  --graph --since=3.hour >> release.txt
         #test
         #test  -s openwrt/wget/release &&  echo -e "\n* The source code log is displayed." >> release.txt ||   echo -e "\n* The source code is not updated." >> release.txt
         touch release.txt
