@@ -8,7 +8,7 @@
 
 A template for building OpenWrt with GitHub Actions
 
-A easy way to upgrade the firmware fork from Lenyu2020 (https://github.com/Lenyu2020/Actions-OpenWrt-x86)
+A easy way to upgrade the firmware fork from [Lenyu2020](https://github.com/Lenyu2020/Actions-OpenWrt-x86)
 
 Just add adguardhome
 
