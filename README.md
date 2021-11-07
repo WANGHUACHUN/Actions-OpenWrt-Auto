@@ -7,7 +7,18 @@
 ![GitHub Forks](https://img.shields.io/github/forks/P3TERX/Actions-OpenWrt.svg?style=flat-square&label=Forks&logo=github)
 
 A template for building OpenWrt with GitHub Actions
+A easy way to upgrade the firmware fork from lenyu2020(https://github.com/Lenyu2020/Actions-OpenWrt-x86)
 
+## Thanks
+
+- P3TERX
+- smallprogram
+- coolsnowwolf
+- xiaorouji
+- vernesong
+- lenyu2020
+- ....
+- 
 ## Usage
 
 - Click the [Use this template](https://github.com/P3TERX/Actions-OpenWrt/generate) button to create a new repository.
