@@ -19,9 +19,9 @@ Just add adguardhome
 - coolsnowwolf
 - xiaorouji
 - vernesong
-- lenyu2020
+- Lenyu2020
 - ....
-- 
+
 ## Usage
 
 - Click the [Use this template](https://github.com/P3TERX/Actions-OpenWrt/generate) button to create a new repository.
