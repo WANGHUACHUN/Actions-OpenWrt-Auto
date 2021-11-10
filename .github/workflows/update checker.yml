@@ -34,7 +34,7 @@ on:
         required: false
         default: 'false'
   schedule:
-    - cron: 0 */12 * * *
+    - cron: 0 */6 * * *
 
 jobs:
   check:
@@ -99,7 +99,6 @@ jobs:
       if: steps.cacheHash.outputs.cache-hit != 'true'
       uses: peter-evans/repository-dispatch@v1
       with:
-        repository: coldrook/Actions-OpenWrt-Auto/blob/main/.github/workflows/build-openwrt.yml
         token: ${{ secrets.ACTIONS_TRIGGER_PAT }}
         event-type: Source Code Update
 
