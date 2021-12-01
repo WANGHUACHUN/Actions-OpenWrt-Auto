@@ -93,7 +93,6 @@ jobs:
        rm -rf luci-theme-argon  
        git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
 
-
     - name: luci-app-adguardhome install
       run: |
        cd openwrt
@@ -101,7 +100,13 @@ jobs:
        cd package/lean/luci-app-adguardhome  
        git clone https://github.com/uamrws/luci-app-adguardhome.git
     
-    
+    - name: wolfssl install
+      run: |
+       cd openwrt
+       cd package/lean 
+       rm -rf wolfSSL
+       git clone https://github.com/wolfSSL/wolfssl.git
+           
     - name: Load custom feeds
       run: |
         [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
