@@ -44,7 +44,7 @@ ver414=`grep "LINUX_VERSION-4.14 ="  include/kernel-version.mk | cut -d . -f 3`
 ver419=`grep "LINUX_VERSION-4.19 ="  include/kernel-version.mk | cut -d . -f 3`
 ver54=`grep "LINUX_VERSION-5.4 ="  include/kernel-version.mk | cut -d . -f 3`
 ver510=`grep "LINUX_VERSION-5.10 ="  include/kernel-version.mk | cut -d . -f 3`
-ver510=`grep "LINUX_VERSION-5.15 ="  include/kernel-version.mk | cut -d . -f 3`
+ver515=`grep "LINUX_VERSION-5.15 ="  include/kernel-version.mk | cut -d . -f 3`
 if [ "$str1" = "5.4" ];then
    mv  bin/targets/x86/64/openwrt-x86-64-generic-squashfs-combined.img.gz       bin/targets/x86/64/openwrt_x86-64-${rename_version}_${str1}.${ver54}_dev_Lenyu.img.gz
   mv  bin/targets/x86/64/openwrt-x86-64-generic-squashfs-combined-efi.img.gz   bin/targets/x86/64/openwrt_x86-64-${rename_version}_${str1}.${ver54}_uefi-gpt_dev_Lenyu.img.gz
