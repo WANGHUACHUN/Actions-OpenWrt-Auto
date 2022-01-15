@@ -61,7 +61,7 @@ elif [ "$str1" = "5.15" ];then
    mv  bin/targets/x86/64/openwrt-x86-64-generic-squashfs-combined.img.gz       bin/targets/x86/64/openwrt_x86-64-${rename_version}_${str1}.${ver515}_cc.img.gz
   mv  bin/targets/x86/64/openwrt-x86-64-generic-squashfs-combined-efi.img.gz   bin/targets/x86/64/openwrt_x86-64-${rename_version}_${str1}.${ver515}_uefi-gpt_cc.img.gz
 fi
-ls bin/targets/x86/64 | grep "_Lenyu.img" | cut -d - -f 3 | cut -d _ -f 1-2 > wget/op_version1
+ls bin/targets/x86/64 | grep "_cc.img" | cut -d - -f 3 | cut -d _ -f 1-2 > wget/op_version1
 #md5
 ls -l  "bin/targets/x86/64" | awk -F " " '{print $9}' > wget/open_dev_md5
 dev_version=`grep "_uefi-gpt_cc.img.gz" wget/open_dev_md5 | cut -d - -f 3 | cut -d _ -f 1-2`
@@ -75,7 +75,7 @@ EOF
 
 cat>lenyu.sh<<-\EOOF
 #!/bin/bash
-lenyu_version="`date '+%y%m%d%H%M'`_dev_Len yu" 
+lenyu_version="`date '+%y%m%d%H%M'`_cc" 
 echo $lenyu_version >  wget/DISTRIB_REVISION1 
 echo $lenyu_version | cut -d _ -f 1 >  files/etc/lenyu_version  
 #######
