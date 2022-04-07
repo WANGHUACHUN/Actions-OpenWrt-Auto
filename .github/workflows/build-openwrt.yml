@@ -70,8 +70,9 @@ jobs:
     - name: Cache
       uses: klever1988/cachewrtbuild@main
       with:
-       ccache: 'true' #'true'
-       clean:  'false'  # 'false'
+       ccache: 'true' #'true' 默认值
+       #清空缓存
+       clean:  'false'  # 'false' 默认值
        prefix: ${{ github.workspace }}/openwrt
     
     - name: luci-app-openclash install
@@ -86,13 +87,11 @@ jobs:
         git pull origin dev
         git branch --set-upstream-to=origin/dev master
     
-    - name: luci-theme-argon install
+    - name: luci-theme-argonn
       run: |
-       cd openwrt
-       cd package/lean  
-       rm -rf luci-theme-argon  
-       git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
-
+        cd openwrt/package 		
+        git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git luci-theme-argonn
+        
     - name: luci-app-adguardhome install
       run: |
        cd openwrt
@@ -100,6 +99,10 @@ jobs:
        cd package/lean/luci-app-adguardhome  
        git clone https://github.com/uamrws/luci-app-adguardhome.git
     
+    - name: luci-app-frpc
+      run: |
+        cd openwrt/package 
+        git clone https://github.com/kuoruan/luci-app-frpc.git
     
     - name: Load custom feeds
       run: |
@@ -113,6 +116,7 @@ jobs:
       run: |
         cd openwrt 
         bash  lenyu.sh
+
 
     - name: Update feeds
       run: cd openwrt && ./scripts/feeds update -a
