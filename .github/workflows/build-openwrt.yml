@@ -92,13 +92,18 @@ jobs:
         cd openwrt/package 		
         git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git luci-theme-argonn
         
+    - name: aliyundrive-webdav
+      run: |
+        cd openwrt/package 
+        git clone https://github.com/messense/aliyundrive-webdav.git
+
     - name: luci-app-adguardhome install
       run: |
        cd openwrt
        mkdir package/lean/luci-app-adguardhome
        cd package/lean/luci-app-adguardhome  
        git clone https://github.com/uamrws/luci-app-adguardhome.git
-    
+       
     - name: luci-app-frpc
       run: |
         cd openwrt/package 
