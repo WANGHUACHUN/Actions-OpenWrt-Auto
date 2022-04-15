@@ -99,9 +99,7 @@ jobs:
 
     - name: luci-app-adguardhome install
       run: |
-       cd openwrt
-       mkdir package/lean/luci-app-adguardhome
-       cd package/lean/luci-app-adguardhome  
+       cd openwrt/package  
        git clone https://github.com/uamrws/luci-app-adguardhome.git
        
     - name: luci-app-frpc
