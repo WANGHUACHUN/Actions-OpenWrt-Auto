@@ -106,18 +106,16 @@ jobs:
       run: |
         cd openwrt/package 
         git clone https://github.com/messense/aliyundrive-webdav.git
-
-    - name: luci-app-adguardhome install
-      run: |
-       cd openwrt
-       mkdir package/lean/luci-app-adguardhome
-       cd package/lean/luci-app-adguardhome  
-       git clone https://github.com/uamrws/luci-app-adguardhome.git
        
     - name: luci-app-frpc
       run: |
         cd openwrt/package 
         git clone https://github.com/kuoruan/luci-app-frpc.git
+        
+    - name: luci-app-adguardhome
+      run: |
+        cd openwrt/package 
+        git clone https://github.com/uamrws/luci-app-adguardhome.git
     
     - name: Load custom feeds
       run: |
