@@ -132,7 +132,7 @@ jobs:
 
 
     - name: Update feeds
-      run: cd openwrt && ./scripts/feeds update -a
+      run: cd openwrt && ./scripts/feeds update -a && rm -rf ./feeds/packages/net/mosdns && cp -r -f ./feeds/xiangfeidexiaohuo/op-mosdns ./feeds/packages/net/mosdns
 
     - name: Install feeds
       run: cd openwrt && ./scripts/feeds install -a
