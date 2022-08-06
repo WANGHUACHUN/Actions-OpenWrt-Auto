@@ -44,32 +44,12 @@ rm -rf bin/targets/x86/64/sha256sums
 rm -rf  bin/targets/x86/64/version.buildinfo
 sleep 2
 rename_version=`cat files/etc/lenyu_version`
-str1=`grep "KERNEL_PATCHVER:="  target/linux/x86/Makefile | cut -d = -f 2` #判断当前默认内核版本号如5.10
-ver414=`grep "LINUX_VERSION-4.14 ="  include/kernel-4.14 | cut -d . -f 3`
-ver419=`grep "LINUX_VERSION-4.19 ="  include/kernel-4.19 | cut -d . -f 3`
-ver54=`grep "LINUX_VERSION-5.4 ="  include/kernel-5.4 | cut -d . -f 3`
-ver510=`grep "LINUX_VERSION-5.10 ="  include/kernel-5.10 | cut -d . -f 3`
+str1=`grep "KERNEL_PATCHVER:="  target/linux/x86/Makefile | cut -d = -f 2` #判断当前默认内核版本号如5.15
 ver515=`grep "LINUX_VERSION-5.15 ="  include/kernel-5.15 | cut -d . -f 3`
-ver518=`grep "LINUX_VERSION-5.18 ="  include/kernel-5.18 | cut -d . -f 3`
 ver519=`grep "LINUX_VERSION-5.19 ="  include/kernel-5.19 | cut -d . -f 3`
-if [ "$str1" = "5.4" ];then
-   mv  bin/targets/x86/64/openwrt-x86-64-generic-squashfs-combined.img.gz       bin/targets/x86/64/openwrt_x86-64-${rename_version}_${str1}.${ver54}_cc.img.gz
-  mv  bin/targets/x86/64/openwrt-x86-64-generic-squashfs-combined-efi.img.gz   bin/targets/x86/64/openwrt_x86-64-${rename_version}_${str1}.${ver54}_uefi-gpt_cc.img.gz
-elif [ "$str1" = "4.19" ];then
-  mv  bin/targets/x86/64/openwrt-x86-64-generic-squashfs-combined.img.gz       bin/targets/x86/64/openwrt_x86-64-${rename_version}_${str1}.${ver419}_cc.img.gz
-  mv  bin/targets/x86/64/openwrt-x86-64-generic-squashfs-combined-efi.img.gz   bin/targets/x86/64/openwrt_x86-64-${rename_version}_${str1}.${ver419}_uefi-gpt_cc.img.gz
-elif [ "$str1" = "4.14" ];then
-  mv  bin/targets/x86/64/openwrt-x86-64-generic-squashfs-combined.img.gz       bin/targets/x86/64/openwrt_x86-64-${rename_version}_${str1}.${ver414}_cc.img.gz
-  mv  bin/targets/x86/64/openwrt-x86-64-generic-squashfs-combined-efi.img.gz   bin/targets/x86/64/openwrt_x86-64-${rename_version}_${str1}.${ver414}_uefi-gpt_cc.img.gz
-elif [ "$str1" = "5.10" ];then
-   mv  bin/targets/x86/64/openwrt-x86-64-generic-squashfs-combined.img.gz       bin/targets/x86/64/openwrt_x86-64-${rename_version}_${str1}.${ver510}_cc.img.gz
-  mv  bin/targets/x86/64/openwrt-x86-64-generic-squashfs-combined-efi.img.gz   bin/targets/x86/64/openwrt_x86-64-${rename_version}_${str1}.${ver510}_uefi-gpt_cc.img.gz
-elif [ "$str1" = "5.15" ];then
+if [ "$str1" = "5.15" ];then
    mv  bin/targets/x86/64/openwrt-x86-64-generic-squashfs-combined.img.gz       bin/targets/x86/64/openwrt_x86-64-${rename_version}_${str1}.${ver515}_cc.img.gz
   mv  bin/targets/x86/64/openwrt-x86-64-generic-squashfs-combined-efi.img.gz   bin/targets/x86/64/openwrt_x86-64-${rename_version}_${str1}.${ver515}_uefi-gpt_cc.img.gz
-elif [ "$str1" = "5.18" ];then
-   mv  bin/targets/x86/64/openwrt-x86-64-generic-squashfs-combined.img.gz       bin/targets/x86/64/openwrt_x86-64-${rename_version}_${str1}.${ver518}_cc.img.gz
-  mv  bin/targets/x86/64/openwrt-x86-64-generic-squashfs-combined-efi.img.gz   bin/targets/x86/64/openwrt_x86-64-${rename_version}_${str1}.${ver518}_uefi-gpt_cc.img.gz
 elif [ "$str1" = "5.19" ];then
    mv  bin/targets/x86/64/openwrt-x86-64-generic-squashfs-combined.img.gz       bin/targets/x86/64/openwrt_x86-64-${rename_version}_${str1}.${ver519}_cc.img.gz
   mv  bin/targets/x86/64/openwrt-x86-64-generic-squashfs-combined-efi.img.gz   bin/targets/x86/64/openwrt_x86-64-${rename_version}_${str1}.${ver519}_uefi-gpt_cc.img.gz
