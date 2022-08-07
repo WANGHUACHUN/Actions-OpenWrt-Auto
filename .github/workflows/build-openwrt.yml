@@ -34,7 +34,7 @@ env:
   DIY_P2_SH: diy-part2.sh
   UPLOAD_BIN_DIR: false
   UPLOAD_CONFIG: true
-  UPLOAD_FIRMWARE: false
+  UPLOAD_FIRMWARE: true
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
 
@@ -66,17 +66,6 @@ jobs:
         df -hT $PWD
         git clone $REPO_URL -b $REPO_BRANCH openwrt
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
-   
-    - name: Cache
-      uses: klever1988/cachewrtbuild@main
-      with:
-       ccache: 'true' #'true' 默认值
-       #清空缓存
-       clean:  'false'  # 'false' 默认值
-       prefix: ${{ github.workspace }}/openwrt
-    
-    - name: luci-app-openclash install
-      run: |
         cd openwrt
         Author=$(git show -s --date=short --format="%an")
         Date=$(git show -s --date=short --format="%ci")
@@ -88,8 +77,18 @@ jobs:
         echo "hash=$Hash" >> $GITHUB_ENV
         echo "DATE=$(date "+%Y-%m-%d %H:%M:%S")" >> $GITHUB_ENV
         echo "TAG=$(date "+%Y%m%d")" >> $GITHUB_ENV
-        echo "start=$(date +%s)" >> $GITHUB_ENV
+        echo "start=$(date +%s)" >> $GITHUB_ENV   
 
+    - name: Cache
+      uses: klever1988/cachewrtbuild@main
+      with:
+       ccache: 'false' #'true' 默认值
+       #清空缓存
+       clean:  'true'  # 'false' 默认值
+       prefix: ${{ github.workspace }}/openwrt
+    
+    - name: luci-app-openclash install
+      run: |
         mkdir package/luci-app-openclash
         cd package/luci-app-openclash
         git init
@@ -227,7 +226,7 @@ jobs:
         token: ${{ secrets.GH_TOKEN }}
         body: |
           - ⭐️此为 ${{ env.FILE_NAME }}_${{ env.KERNEL }} 固件
-          - 🔥默认IP：192.168.11.1 默认密码：password
+          - 🔥默认IP：192.168.8.3 默认密码：password
           - 当前使用版本:【编译前的最后一次[➦主源码](https://github.com/coolsnowwolf/lede)更新记录】
           - ★ 感谢源码作者无私分享！
           - 🎈🎈🎈 更新信息 🎈🎈🎈
