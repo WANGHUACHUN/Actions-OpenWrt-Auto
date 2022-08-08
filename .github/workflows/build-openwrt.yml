@@ -33,55 +33,50 @@ env:
   DIY_P1_SH: diy-part1.sh
   DIY_P2_SH: diy-part2.sh
   UPLOAD_BIN_DIR: false
-  UPLOAD_CONFIG: true
   UPLOAD_FIRMWARE: true
+  UPLOAD_COWTRANSFER: false
+  UPLOAD_WETRANSFER: false
   UPLOAD_RELEASE: true
+  generate_release_notes: true
   TZ: Asia/Shanghai
-  FILE_NAME: x86_64
-  PRODUCT_NAME: x86_64
-  
+
 jobs:
   build:
     runs-on: ubuntu-20.04
 
     steps:
     - name: Checkout
-      uses: actions/checkout@main
+      uses: actions/checkout@v2
 
     - name: Initialization environment
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
-        sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /etc/mysql /etc/php /usr/local/lib/android /opt/ghc
-        sudo -E apt-get -y purge azure-cli ghc* zulu* hhvm llvm* firefox google* dotnet* powershell openjdk* adoptopenjdk* mysql* php* mongodb* dotnet* moby* snapd* || true
-        sudo -E apt-get -qq update
-        sudo -E apt-get -qq install $(curl -fsSL https://is.gd/depends_ubuntu_2204)
-        sudo -E apt-get -qq autoremove --purge
-        sudo -E apt-get -qq clean
+        sudo -E swapoff -a
+        sudo -E rm -f /swapfile
+        sudo -E docker image prune -a -f
+        sudo -E snap set system refresh.retain=2
+        sudo -E apt-get -y purge dotnet* firefox ghc* google* hhvm llvm* mono* mysql* openjdk* php* zulu*
+        sudo -E apt-get -y autoremove --purge
+        sudo -E rm -rf /usr/share/dotnet /usr/local/lib/android/sdk /etc/mysql /etc/php /usr/local/share/boost
+        [ -n "$AGENT_TOOLSDIRECTORY" ] && sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+        sudo -E apt-get update -y
+        sudo -E apt-get install -y ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential bzip2 ccache cmake cpio curl device-tree-compiler fastjar flex gawk gettext gcc-multilib g++-multilib git gperf haveged help2man intltool libc6-dev-i386 libelf-dev libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev libncursesw5-dev libreadline-dev libssl-dev libtool lrzsz mkisofs msmtp nano ninja-build p7zip p7zip-full patch pkgconf python2.7 python3 python3-pip libpython3-dev qemu-utils rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev
+        pip install aligo==v5.0.1
+        sudo -E apt-get clean
+        git config --global user.name 'GitHub Actions' && git config --global user.email 'noreply@github.com'
+        df -h
         sudo timedatectl set-timezone "$TZ"
         sudo mkdir -p /workdir
         sudo chown $USER:$GROUPS /workdir
-        df -Th
-        
+
     - name: Clone source code
       working-directory: /workdir
       run: |
         df -hT $PWD
-        git clone $REPO_URL -b $REPO_BRANCH openwrt
+        git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
-        cd openwrt
-        Author=$(git show -s --date=short --format="%an")
-        Date=$(git show -s --date=short --format="%ci")
-        Commit=$(git show -s --date=short --format="%s")
-        Hash=$(git show -s --date=short --format="%H")
-        echo "author=$Author" >> $GITHUB_ENV
-        echo "date=$Date" >> $GITHUB_ENV
-        echo "commit=$Commit" >> $GITHUB_ENV
-        echo "hash=$Hash" >> $GITHUB_ENV
-        echo "DATE=$(date "+%Y-%m-%d %H:%M:%S")" >> $GITHUB_ENV
-        echo "tag_name=$(date "+%Y%m%d")" >> $GITHUB_ENV
-        echo "start=$(date +%s)" >> $GITHUB_ENV   
-
+   
     - name: Cache
       uses: klever1988/cachewrtbuild@main
       with:
@@ -174,7 +169,7 @@ jobs:
       run: |
         cd openwrt
         echo -e "$(nproc) thread compile"
-        make -j$(nproc) || make -j1 V=s
+        make -j$(nproc) || make -j1 || make -j1 V=s
         echo "::set-output name=status::success"
         grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
         [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
@@ -183,94 +178,97 @@ jobs:
     - name: Check space usage
       if: (!cancelled())
       run: df -hT
-    - name: Organize firmware files
-      id: organizer
-      run: |
-        mkdir -p ./artifact/buildinfo
-        cp -rf openwrt/.config ./artifact/buildinfo/x86.config
-        cp -rf $(find openwrt/bin/targets/ -type f -name "*.buildinfo" -o -name "*.manifest") ./artifact/buildinfo/
+
     - name: Upload bin directory
       uses: actions/upload-artifact@main
-      if: env.UPLOAD_BIN_DIR == 'true' && steps.compile.outputs.status == 'success'
+      if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true'
       with:
         name: OpenWrt_bin${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
         path: openwrt/bin
-        
-    - name: Upload config
-      uses: actions/upload-artifact@main
-      if: env.UPLOAD_CONFIG == 'true' && steps.compile.outputs.status == 'success'
-      with:
-        name: x86-519-config
-        path: ./artifact/buildinfo/
    
     - name: delete files
       run: |
         cd openwrt 
         bash  rename.sh
-        Kernel=`grep "_uefi.img.gz" wget/open_dev_md5 | cut -d - -f 2 | cut -d _ -f 2 `
-        echo "KERNEL=$Kernel" >> $GITHUB_ENV
     
+
     - name: Organize files
       id: organize
-      if: steps.compile.outputs.status == 'success'
+      if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
       run: |
         cd openwrt/bin/targets/*/*
         rm -rf packages
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
         echo "::set-output name=status::success"
-        
+
     - name: Upload firmware directory
       uses: actions/upload-artifact@main
-      if: env.UPLOAD_FIRMWARE == 'true' && steps.organize.outputs.status == 'success'
+      if: steps.organize.outputs.status == 'success' && !cancelled()
       with:
         name: OpenWrt_firmware${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
         path: ${{ env.FIRMWARE }}
 
+    - name: Upload firmware to cowtransfer
+      id: cowtransfer
+      if: steps.organize.outputs.status == 'success' && env.UPLOAD_COWTRANSFER == 'true' && !cancelled()
+      run: |
+        curl -fsSL git.io/file-transfer | sh
+        ./transfer cow --block 2621440 -s -p 64 --no-progress ${FIRMWARE} 2>&1 | tee cowtransfer.log
+        echo "::warning file=cowtransfer.com::$(cat cowtransfer.log | grep https)"
+        echo "::set-output name=url::$(cat cowtransfer.log | grep https | cut -f3 -d" ")"
+
+    - name: Upload firmware to WeTransfer
+      id: wetransfer
+      if: steps.organize.outputs.status == 'success' && env.UPLOAD_WETRANSFER == 'true' && !cancelled()
+      run: |
+        curl -fsSL git.io/file-transfer | sh
+        ./transfer wet -s -p 16 --no-progress ${FIRMWARE} 2>&1 | tee wetransfer.log
+        echo "::warning file=wetransfer.com::$(cat wetransfer.log | grep https)"
+        echo "::set-output name=url::$(cat wetransfer.log | grep https | cut -f3 -d" ")"
+
+    - name: Generate release tag
+      id: tag_name
+      if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+      run: |
+        echo "::set-output name=release_tag::$(cat openwrt/wget/op_version1)"
+        git -C openwrt log --pretty=format:"%s(#By %an)"  --graph --since=3.hour >> release.txt
+        git -C openwrt/feeds/packages log --pretty=format:"%s(#By %an)"  --graph --since=3.hour >> release.txt
+        git -C openwrt/feeds/luci log --pretty=format:"%s(#By %an)"  --graph --since=3.hour >> release.txt
+        git -C openwrt/feeds/routing log --pretty=format:"%s(#By %an)"  --graph --since=3.hour >> release.txt
+        git -C openwrt/feeds/telephony log --pretty=format:"%s(#By %an)"  --graph --since=3.hour >> release.txt
+        git -C openwrt/feeds/helloworld log --pretty=format:"%s(#By %an)"  --graph --since=4.hour >> release.txt
+        git -C openwrt/feeds/passwall log --pretty=format:"%s(#By %an)"  --graph --since=8.hour >> release.txt
+        git -C openwrt/package/luci-app-openclash log --pretty=format:"%s(#By %an)"  --graph --since=8.hour >> release.txt
+        test  ! -s release.txt && echo -e "\n* The source code is not updated." >> release.txt
+        sed -i '1i ## Firmware Update Log' release.txt
+        touch release.txt
+        [ $UPLOAD_COWTRANSFER = true ] && echo "🔗 [Cowtransfer](${{ steps.cowtransfer.outputs.url }})" >> release.txt
+        [ $UPLOAD_WETRANSFER = true ] && echo "🔗 [WeTransfer](${{ steps.wetransfer.outputs.url }})" >> release.txt
+        echo "::set-output name=status::success"
+
     - name: Create release
       id: release
       uses: ncipollo/release-action@v1
-      if: env.UPLOAD_RELEASE == 'true' && steps.compile.outputs.status == 'success'
-
+      if: steps.tag_name.outputs.status == 'success' && !cancelled()
       with:
-        name: ${{ env.DATE }} 「 ${{ env.FILE_NAME }}_${{ env.KERNEL }}」固件
+        name: ${{ steps.tag_name.outputs.release_tag }}
         allowUpdates: true
-        tag: ${{ env.TAG }}_${{ env.KERNEL }}
+        tag: ${{ steps.tag_name.outputs.release_tag }}
         token: ${{ secrets.GITHUB_TOKEN }}
-        body: |
-          - ⭐️此为 ${{ env.FILE_NAME }}_${{ env.KERNEL }} 固件
-          - 🔥默认IP：192.168.11.1 默认密码：password
-          - 当前使用版本:【编译前的最后一次[➦主源码](https://github.com/coolsnowwolf/lede)更新记录】
-          - ★ 感谢源码作者无私分享！
-          - 🎈🎈🎈 更新信息 🎈🎈🎈
-          - 作者: ${{ env.author }}
-          - 时间: ${{ env.date }} 
-          - 内容: ${{ env.commit }}        
-          - hash: ${{ env.hash }}
+        bodyfile: release.txt
         artifacts: ${{ env.FIRMWARE }}/*
-
-    - name: Completion time 
-      run: |
-        echo "DATE1=$(date "+%Y-%m-%d %H:%M:%S")" >> $GITHUB_ENV
-        end=$(date +%s)
-        seconds=$(( end - start ))
-        hour=$(( $seconds/3600 ))
-        min=$(( ($seconds-${hour}*3600)/60 ))
-        sec=$(( $seconds-${hour}*3600-${min}*60 ))
-        HMS=`echo ${hour}:${min}:${sec}`
-        echo "time=$HMS" >> $GITHUB_ENV
 
     - name: Delete workflow runs
       uses: GitRML/delete-workflow-runs@main
       with:
-        retain_days: 2
-        keep_minimum_runs: 6
-        
+        retain_days: 1
+        keep_minimum_runs: 5
+
     - name: Remove old Releases
-      uses: dev-drprasad/delete-older-releases@v0.2.0
-      if: env.UPLOAD_RELEASE == 'true' 
+      uses: dev-drprasad/delete-older-releases@v0.1.0
+      if: env.UPLOAD_RELEASE == 'true' && !cancelled()
       with:
-        keep_latest: 10
+        keep_latest: 20
         delete_tags: true
-        delete_tag_pattern: _
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
