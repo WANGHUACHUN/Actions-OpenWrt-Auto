@@ -227,7 +227,7 @@ jobs:
         echo "::set-output name=url::$(cat wetransfer.log | grep https | cut -f3 -d" ")"
 
     - name: Generate release tag
-      id: tag_name
+      id: tag
       if: env.UPLOAD_RELEASE == 'true' && !cancelled()
       run: |
         echo "::set-output name=release_tag::$(cat openwrt/wget/op_version1)"
@@ -249,11 +249,11 @@ jobs:
     - name: Create release
       id: release
       uses: ncipollo/release-action@v1
-      if: steps.tag_name.outputs.status == 'success' && !cancelled()
+      if: steps.tag.outputs.status == 'success' && !cancelled()
       with:
-        name: ${{ steps.tag_name.outputs.release_tag }}
+        name: ${{ steps.tag.outputs.release_tag }}
         allowUpdates: true
-        tag: ${{ steps.tag_name.outputs.release_tag }}
+        tag: ${{ steps.tag.outputs.release_tag }}
         token: ${{ secrets.GITHUB_TOKEN }}
         bodyfile: release.txt
         artifacts: ${{ env.FIRMWARE }}/*
