@@ -229,9 +229,7 @@ jobs:
       id: tag
       if: env.UPLOAD_RELEASE == 'true' && !cancelled()
       run: |
-
-        release_tag="$(cat openwrt/wget/op_version1)"
-	echo "::set-output name=release_tag::$release_tag"
+	echo "::set-output name=release_tag::$(cat openwrt/wget/op_version1)"
         git -C openwrt log --pretty=format:"%s(#By %an)"  --graph --since=3.hour >> release.txt
         git -C openwrt/feeds/packages log --pretty=format:"%s(#By %an)"  --graph --since=3.hour >> release.txt
         git -C openwrt/feeds/luci log --pretty=format:"%s(#By %an)"  --graph --since=3.hour >> release.txt
