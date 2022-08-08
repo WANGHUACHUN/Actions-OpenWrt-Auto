@@ -231,8 +231,6 @@ jobs:
       run: |
         name=$(cat openwrt/wget/op_version1)
         release_tag="$name"
-        release_name="$name"
-        echo "::[set-output name=release_name::$release_name"
 	echo "::set-output name=release_tag::$release_tag"
         git -C openwrt log --pretty=format:"%s(#By %an)"  --graph --since=3.hour >> release.txt
         git -C openwrt/feeds/packages log --pretty=format:"%s(#By %an)"  --graph --since=3.hour >> release.txt
@@ -254,7 +252,7 @@ jobs:
       uses: ncipollo/release-action@v1
       if: steps.tag.outputs.status == 'success' && !cancelled()
       with:
-        name: ${{ steps.tag.outputs.release_name }}
+        name: ${{ steps.tag.outputs.release_tag }}
         tag: ${{ steps.tag.outputs.release_tag }}
         token: ${{ secrets.GITHUB_TOKEN }}
         bodyfile: release.txt
