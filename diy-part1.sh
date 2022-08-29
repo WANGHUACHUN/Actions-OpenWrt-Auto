@@ -12,14 +12,16 @@
 
 # Uncomment a feed source
 # Add a feed source
+rm -rf ./package/lean/k3screenctrl
+rm -rf ./package/lean/autocore
 sed -i "/helloworld/d" "feeds.conf.default"
 echo "src-git helloworld https://github.com/fw876/helloworld.git" >> "feeds.conf.default"
 echo 'src-git passwallluci https://github.com/xiaorouji/openwrt-passwall;luci' >>feeds.conf.default
 echo 'src-git passwall https://github.com/xiaorouji/openwrt-passwall;packages' >>feeds.conf.default
 #sed -i '$a src-git kenzo https://github.com/kenzok8/openwrt-packages' feeds.conf.default
 #sed -i '$a src-git small https://github.com/kenzok8/small' feeds.conf.default
-sed -i '$a src-git xiangfeidexiaohuo https://github.com/xiangfeidexiaohuo/openwrt-packages' feeds.conf.default
-sed -i '$a src-git ipkg https://github.com/xiangfeidexiaohuo/op-ipkg' feeds.conf.default
+sed -i "1isrc-git xiangfeidexiaohuo https://github.com/xiangfeidexiaohuo/openwrt-packages" feeds.conf.default
+sed -i "2isrc-git ipkg https://github.com/xiangfeidexiaohuo/op-ipkg\n" feeds.conf.default
 
 mkdir -p files/usr/share
 mkdir -p files/etc/
