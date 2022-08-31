@@ -21,10 +21,9 @@ cp -r -f ./feeds/xiangfeidexiaohuo/op-mosdns ./feeds/packages/net/mosdns
 ## Modify default IP
 sed -i 's/192.168.1.1/192.168.11.1/g' package/base-files/files/bin/config_generate
 
-##加入作者信息
-sed -i "s/DISTRIB_DESCRIPTION='*.*'/DISTRIB_DESCRIPTION='autocc-$(date +%Y%m%d)'/g" package/lean/default-settings/files/zzz-default-settings   
+##加入作者信息   
 sed -i "s/DISTRIB_REVISION='*.*'/DISTRIB_REVISION=' autocc'/g" package/lean/default-settings/files/zzz-default-settings
-cp -af feeds/xiangfeidexiaohuo/patch/banner  package/base-files/files/etc/
+
 
 ##切换为samba4
 sed -i 's/luci-app-samba/luci-app-samba4/g' package/lean/autosamba/Makefile
