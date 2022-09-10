@@ -27,7 +27,7 @@ sed -i "s/DISTRIB_REVISION='*.*'/DISTRIB_REVISION=' autocc'/g" package/lean/defa
 
 
 ##切换为samba4
-sed -i 's/luci-app-samba/luci-app-samba44/g' package/lean/autosamba/Makefile
+#sed -i 's/luci-app-samba/luci-app-samba44/g' package/lean/autosamba/Makefile
 
 
 sed -i 's/KERNEL_PATCHVER:=5.15/KERNEL_PATCHVER:=5.19/g' target/linux/x86/Makefile
