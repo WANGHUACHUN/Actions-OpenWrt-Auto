@@ -22,7 +22,7 @@ cp -r -f ./feeds/xiangfeidexiaohuo/op-mosdns ./feeds/packages/net/mosdns
 sed -i 's/192.168.1.1/192.168.11.1/g' package/base-files/files/bin/config_generate
 
 ##加入作者信息
-sed -i "s/DISTRIB_DESCRIPTION='*.*'/DISTRIB_DESCRIPTION='autocc-$(date +%Y%m%d)'/g" package/lean/default-settings/files/zzz-default-settings
+sed -i "s/DISTRIB_DESCRIPTION='*.*'/DISTRIB_DESCRIPTION='OpenWrt@autocc-$(date +%Y%m%d)'/g" package/lean/default-settings/files/zzz-default-settings
 sed -i "s/DISTRIB_REVISION='*.*'/DISTRIB_REVISION=' autocc'/g" package/lean/default-settings/files/zzz-default-settings
 
 
